@@ -41,6 +41,7 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+#include "ssd1306.h"
 
 /* USER CODE END Includes */
 
@@ -98,7 +99,10 @@ int main(void)
   MX_I2C1_Init();
 
   /* USER CODE BEGIN 2 */
-
+  ssd1306Init();
+  clearScreen();
+  ssd1306_WriteString("YO YO YO", 1);
+  updateScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */
