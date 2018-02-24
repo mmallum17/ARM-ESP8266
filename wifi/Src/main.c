@@ -39,6 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l1xx_hal.h"
+#include <string.h>
 
 /* USER CODE BEGIN Includes */
 #include "ssd1306.h"
@@ -63,7 +64,7 @@ static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+void esp8266Write(char* command, uint16_t readBytes, uint32_t timeout);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -74,7 +75,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  //char rcvBuffer[80] = "";
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -103,6 +104,47 @@ int main(void)
   clearScreen();
   ssd1306_WriteString("YO YO YO", 1);
   updateScreen();
+
+  esp8266Write("AT", 80, 500);
+  esp8266Write("AT+CWQAP", 80, 500);
+  esp8266Write("AT+CWJAP_CUR=\"SCOTTCAMPUS\",\"mavericks\"", 76, 10000);
+  esp8266Write("AT+CIPSTART=\"TCP\",\"18.221.30.192\",3000", 80, 500);
+  esp8266Write("AT+CIPCLOSE", 80, 500);
+
+  /*clearScreen();
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  HAL_UART_Transmit(&huart5, (uint8_t*)"AT\r\n", 4, 50);
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  ssd1306_WriteString(rcvBuffer, 1);
+  updateScreen();
+
+  clearScreen();
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  HAL_UART_Transmit(&huart5, (uint8_t*)"AT+CWQAP\r\n", 10, 50);
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  ssd1306_WriteString(rcvBuffer, 1);
+  updateScreen();
+
+  clearScreen();
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  HAL_UART_Transmit(&huart5, (uint8_t*)"AT+CWJAP_CUR=\"SCOTTCAMPUS\",\"mavericks\"\r\n", 40, 50);
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 76, 10000);
+  ssd1306_WriteString(rcvBuffer, 1);
+  updateScreen();
+
+  clearScreen();
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  HAL_UART_Transmit(&huart5, (uint8_t*)"AT+CIPSTART=\"TCP\",\"18.221.30.192\",3000\r\n", 40, 50);
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  ssd1306_WriteString(rcvBuffer, 1);
+  updateScreen();
+
+  clearScreen();
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  HAL_UART_Transmit(&huart5, (uint8_t*)"AT+CIPCLOSE\r\n", 13, 50);
+  HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, 80, 500);
+  ssd1306_WriteString(rcvBuffer, 1);
+  updateScreen();*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -247,7 +289,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void esp8266Write(char* command, uint16_t readBytes, uint32_t timeout)
+{
+	char rcvBuffer[80] = "";
+	uint16_t length = strlen(command);
+	HAL_UART_Transmit(&huart5, (uint8_t*)command, length, 50);
+	HAL_UART_Transmit(&huart5, (uint8_t*)"\r\n", 2, 50);
+	HAL_UART_Receive(&huart5, (uint8_t*)rcvBuffer, readBytes, timeout);
+	clearScreen();
+	ssd1306_WriteString(rcvBuffer, 1);
+	updateScreen();
+}
 /* USER CODE END 4 */
 
 /**
